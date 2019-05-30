@@ -1,28 +1,66 @@
------------------------------------------------------------------------------------------
-
---
-
--- Created By: Wajd Mariam
-
--- Created On: May 25th, 2019
-
------------------------------------------------------------------------------------------
-
-display.setStatusBar (display.HiddenStatusBar)
-
-
-
 display.setDefault ( "background", 53/255, 235/255, 242/255)
 
--- phyiscs section
 
-local physics = require ("physics")
+
+
+
+
+
+local physics = require( "physics" )
+
+
+
+local playerBullets = {}
+
+
+
+
 
 
 
 physics.start()
 
-physics.setGravity ( 0, 25 )
+
+
+physics.setGravity( 0, 25 ) -- ( x, y )
+
+
+
+
+
+
+
+local theGround = display.newImage( "assets/sprites/land.png" )
+
+
+
+theGround.x = display.contentCenterX
+
+
+
+theGround.y = display.contentHeight
+
+
+
+theGround.id = "the ground"
+
+
+
+physics.addBody( theGround, "static", { 
+
+
+
+    friction = 0.5, 
+
+
+
+    bounce = 0.3 
+
+
+
+    } )
+
+
 
 
 
@@ -34,113 +72,171 @@ scrollSpeed = 3
 
 
 
-local theGround = display.newImage ("assets/sprites/land.png")
-
-theGround.x = display.contentCenterX
-
-theGround.y = 450
-
-theGround.id = "The Ground"
-
-physics.addBody( theGround, "static", {
-
-    friction =  0.5,
-
-    bounce = 0.3
 
 
-
-     })
-
+local shoot = display.newImageRect( "assets/sprites/shoot1.png", 50, 50 )
 
 
-
-
-local shoot = display.newImageRect("assets/sprites/shoot1.png", 50, 50)
 
 shoot.x = 100
 
-shoot.y = 200
-
-shoot.id = "Shoot Button"
 
 
+shoot.y = 250
 
 
 
--- Ninja Sprite Sheet
+shoot.id = "shoot button"
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 display.setStatusBar(display.HiddenStatusBar)
 
 
 
-centerX = 120
-
-centerY = 360 
+ 
 
 
 
-local sheetOptionsIdle =  
+centerX = 180
 
 
 
-{
-
-	width = 232, 
-
-	height = 439,
-
-	numFrames = 10,
-
-}
-
-
-
-local sheetIdleNinja = graphics.newImageSheet("assets/spriteSheets/ninjaBoyIdle.png", sheetOptionsIdle)
+centerY = 360
 
 
 
 
 
-local sheetOptionsThrow = 
+
+
+local sheetOptionsIdle =
+
+
+
+
 
 
 
 {
 
-    width = 375,
 
-    height = 451,
+
+    width = 232,
+
+
+
+    height = 439,
+
+
 
     numFrames = 10
 
+
+
 }
 
 
 
-local sheetThrowingNinja = graphics.newImageSheet("assets/spriteSheets/ninjaBoyThrow.png", sheetOptionsThrow)
+
+
+
+
+local sheetIdleNinja = graphics.newImageSheet( "assets/spriteSheets/ninjaBoyIdle.png", sheetOptionsIdle )
+
+
+
+
+
+
+
+local sheetOptionsWalk =
+
+
+
+{
+
+
+
+    width = 377,
+
+
+
+    height = 451,
+
+
+
+    numFrames = 10
+
+
+
+}
+
+
+
+
+
+
+
+local sheetWalkingNinja = graphics.newImageSheet( "assets/spriteSheets/ninjaBoyThrow.png", sheetOptionsWalk )
+
+
+
+
 
 
 
 -- sequences table
 
-local sequence_table = {
 
-    
+
+local sequence_data = {
+
+
+
+    -- consecutive frames sequence
+
+
 
     {
 
-    name = "idle",
 
-    start = 1,
 
-    count = 10,
+        name = "idle",
 
-    time = 300,
 
-    loopCount = 0, 
 
-    sheet = sheetIdleNinja
+        start = 1,
+
+
+
+        count = 10,
+
+
+
+        time = 300,
+
+
+
+        loopCount = 0,
+
+
+
+        sheet = sheetIdleninja
+
+
 
     },
 
@@ -148,17 +244,31 @@ local sequence_table = {
 
     {
 
-    name = "throw",
 
-    start = 1,
 
-    count = 10, 
+        name = "walk",
 
-    time = 300,
 
-    loopCount = 1,
 
-    sheet = sheetThrowingNinja
+        start = 1,
+
+
+
+        count = 10,
+
+
+
+        time = 300,
+
+
+
+        loopCount = 1,
+
+
+
+        sheet = sheetWalkingNinja
+
+
 
     }
 
@@ -168,83 +278,151 @@ local sequence_table = {
 
 
 
-local Ninja = display.newSprite ( sheetIdleNinja, sequence_table )
-
-Ninja.xScale = 100/536
-
-Ninja.yScale = 100/495
-
-Ninja.x = 50
-
-Ninja.y = 400
-
-Ninja.width = 150
-
-Ninja.height = 80
-
-physics.addBody ( Ninja, "dynamic", { 
-
-
-
-	density = 2.5,
-
-	friction = 0.5,
-
-	bounce = 0.3
-
-    } ) 
-
-    
-
-
-
-Ninja:play()
 
 
 
 
-
-local function shootTouch( event )
-
-
-
-	Ninja:setSequence ( "walk" )
-
-	Ninja:play()
-
-	print ("Knife Thrown")
+local ninja = display.newSprite( sheetIdleNinja, sequence_data )
 
 
 
-    if ( event.phase == "began") then
+ninja.xScale = 100/536
 
 
 
-    	local SingleBullet = display.newImageRect ("assets/sprites/bullet.png", 25, 25)
-
-    	SingleBullet.x = Ninja.x + 50
-
-    	SingleBullet.y = Ninja.y
-
-    	physics.addBody ( SingleBullet, "dynamic")
+ninja.yScale = 92/495
 
 
 
-    	SingleBullet.isBullet = true
-
-    	SingleBullet.isFixedRotation = true
-
-    	SingleBullet.gravityScale = 0
-
-    	SingleBullet.id = "Bullet"
-
-    	SingleBullet:setLinearVelocity( 1000,0 )
+ninja.x = 50
 
 
 
-    	-- table.insert( playerBullets ,SingleBullet)
+ninja.y = 400 
 
-        -- print ("#of bullet:" .. tostring (#playerBullets))
+
+
+ninja.width = 100
+
+
+
+ninja.height = 73
+
+
+
+physics.addBody( ninja, "dynamic", { 
+
+
+
+    density = 3.0, 
+
+
+
+    friction = 0.5, 
+
+
+
+    bounce = 0.3 
+
+
+
+    } )
+
+
+
+
+
+
+
+ninja:play()
+
+
+
+
+
+
+
+-- After a short time, swap the sequence to 'seq2' which uses the second image sheet
+
+
+
+local function shootTouch ( event )   
+
+
+
+    ninja:setSequence( "walk" )
+
+
+
+    ninja:play()
+
+
+
+    print("Knife Thrown")
+
+
+
+
+
+
+
+    if ( event.phase == "began" ) then
+
+
+
+        -- make a bullet appear
+
+
+
+        local aSingleBullet = display.newImageRect( "assets/sprites/bullet.png", 50, 25 )
+
+
+
+        aSingleBullet.x = ninja.x + 50
+
+
+
+        aSingleBullet.y = ninja.y
+
+
+
+        physics.addBody( aSingleBullet, 'dynamic' )
+
+
+
+        -- Make the object a "bullet" type object
+
+
+
+        aSingleBullet.isBullet = true
+
+
+
+        aSingleBullet.isFixedRotation = true
+
+
+
+        aSingleBullet.gravityScale = 0
+
+
+
+        aSingleBullet.id = "bullet"
+
+
+
+        aSingleBullet:setLinearVelocity( 1000, 0 )
+
+
+
+
+
+
+
+        table.insert(playerBullets,aSingleBullet)
+
+
+
+        print("# of bullet: " .. tostring(#playerBullets))
 
 
 
@@ -252,13 +430,17 @@ local function shootTouch( event )
 
 
 
+
+
+
+
     return true
 
 
 
+end
 
 
-end 
 
 
 
@@ -270,33 +452,63 @@ timer.performWithDelay( 2000, swapSheet )
 
 
 
+
+
+
+
+
+
+
+
+
+
 local function checkPlayerBulletsOutOfBounds()
 
 
 
-     local bulletCounter 
+    -- check if any bullets have gone off the screen
 
 
 
-     if #playerBullets > 0 then
+    local bulletCounter
 
 
 
-     	for bulletCounter = #playerBullets, 1, -1  do
-
-     		if playerBullets[bulletCounter].x > display.contentWidth + 1000 then 
-
-     			playerBullets[bulletCounter]  = nil
-
-     			table.remove(playerBullets, bulletCounter)
-
-     			print("remove bullet")
 
 
 
-             end
 
-    
+    if #playerBullets > 0 then
+
+
+
+        for bulletCounter = #playerBullets, 1 , -1 do
+
+
+
+            if playerBullets[bulletCounter].x > display.contentWidth + 1000 then
+
+
+
+                playerBullets[bulletCounter]:removeSelf()
+
+
+
+                playerBullets[bulletCounter] = nil
+
+
+
+                table.remove(playerBullets, bulletCounter)
+
+
+
+                print("remove bullet")
+
+
+
+            end
+
+
 
         end
 
@@ -306,7 +518,27 @@ local function checkPlayerBulletsOutOfBounds()
 
 
 
-end 
+end
+
+
+
+
+
+
+
+
+
+
+
+--Second Ninja
+
+
+
+
+
+
+
+
 
 
 
@@ -314,93 +546,175 @@ display.setStatusBar(display.HiddenStatusBar)
 
 
 
-centerX = 200
+ 
+
+
+
+centerX = 180
+
+
 
 centerY = 360
 
- 
 
-local sheetOptionsIdle =  
+
+
+
+
+
+local sheetOptionsIdle =
+
+
+
+
 
 
 
 {
 
-	width = 232,
 
-	height = 439,
 
-	numFrames = 10,
+    width = 232,
+
+
+
+    height = 439,
+
+
+
+    numFrames = 10
+
+
 
 }
 
 
 
-local sheetIdleNinja2 = graphics.newImageSheet("assets/spriteSheets/ninjaBoyIdle.png", sheetOptionsIdle)
+
+
+
+
+local sheetIdleNinja = graphics.newImageSheet( "assets/spriteSheets/ninjaBoyIdle.png", sheetOptionsIdle )
 
 
 
 
 
-local sheetOptionsDie = 
+
+
+local sheetOptionsWalk =
+
+
 
 {
 
-	width = 482,
 
-	height = 498,
 
-	numFrames = 10
+    width = 482,
+
+
+
+    height = 498,
+
+
+
+    numFrames = 10
+
+
 
 }
 
 
 
-local sheetDeadNinja2 = graphics.newImageSheet ("assets/spriteSheets/ninjaBoyDead.png", sheetOptionsDie)
 
 
 
-local sequence_table = 
 
- 
+local sheetWalkingNinja = graphics.newImageSheet( "assets/spriteSheets/ninjaBoyDead.png", sheetOptionsWalk )
+
+
+
+
+
+
+
+-- sequences table
+
+
+
+local sequence_data = {
+
+
+
+    -- consecutive frames sequence
+
+
 
     {
 
-     name = "Idle",
 
-     start = 1,
 
-     count = 10,
-
-     time = 300,
-
-     loopCount = 0,
-
-     sheet = sheetOptionsIdle
+        name = "idle",
 
 
 
-     },
-
-     {
-
-     name = "die",
-
-     start = 1,
-
-     count = 10,
-
-     time = 300,
-
-     loopCount = 1,
-
-     sheet = sheetOptionsDie
-
-     }
+        start = 1,
 
 
 
- -- }
+        count = 10,
+
+
+
+        time = 800,
+
+
+
+        loopCount = 1,
+
+
+
+        sheet = sheetIdleninja
+
+
+
+    },
+
+
+
+    {
+
+
+
+        name = "dead",
+
+
+
+        start = 1,
+
+
+
+        count = 10,
+
+
+
+        time = 300,
+
+
+
+        loopCount = 1,
+
+
+
+        sheet = sheetWalkingNinja
+
+
+
+    }
+
+
+
+}
 
 
 
@@ -408,81 +722,228 @@ local sequence_table =
 
 
 
-local Ninja2 = display.newSprite (sheetIdleNinja2, sequence_table)
+local ninja2 = display.newSprite( sheetIdleNinja, sequence_data )
 
 
 
-Ninja2.xScale = 100/536
-
-Ninja2.xScale = 100/495
-
-Ninja2.x = 350
-
-Ninja2.y = 350
-
-Ninja2.height = 180
-
-Ninja2.width = 90
-
-physics.addBody ( Ninja2, "dynamic", { 
+ninja2.xScale = 100/536
 
 
 
-	density = 3.5,
-
-	friction = 0.5, 
-
-	bounce = 0.3
-
-	    } )
+ninja2.yScale = 92/495
 
 
 
-local function Collision (event)
-	if (event.phase == "began") then
-		local obj1 = event.obj1
-		local obj2 = event.obj2 
-		local WhereCollisionOccuredX = obj1.x
-		local WhereCollisionOccuredY = obj1.y
+ninja2.x = 240
 
 
-		if ((obj1.id == "Ninja2" and obj2.id == "Bullet" ) or
 
-			(obj1.id == "Bullet" and obj2.id == "Ninja2" )) then
-
-		display.remove ( "bullet" )
+ninja2.y = 400 
 
 
-		local bulletCounter = nil
 
-		for bulletCounter = #playerBullets, 1 ,-1 do
+ninja2.width = 100
 
-  			if ( playerBullets[bulletCounter] == obj1 or playerBullets[bulletCounter] == obj2 ) then
+
+
+ninja2.height = 73
+
+
+
+ninja2.id = "ninja 2"
+
+
+
+physics.addBody( ninja2, "dynamic", { 
+
+
+
+    density = 3.0, 
+
+
+
+    friction = 0.5, 
+
+
+
+    bounce = 0.3 
+
+
+
+    } )
+
+
+
+
+
+
+
+local function onCollision( event )
+
+
+
+ 
+
+
+
+    if ( event.phase == "began" ) then
+
+
+
+ 
+
+
+
+        local obj1 = event.object1
+
+
+
+        local obj2 = event.object2
+
+
+
+        local whereCollisonOccurredX = obj1.x
+
+
+
+        local whereCollisonOccurredY = obj1.y
+
+
+
+
+
+
+
+        if ( ( obj1.id == "ninja 2" and obj2.id == "bullet" ) or
+
+
+
+             ( obj1.id == "bullet" and obj2.id == "ninja 2" ) ) then
+
+
+
+            -- Remove both the laser and asteroid
+
+
+
+            display.remove( "bullet" )
+
+
+
+            
+
+
+
+            -- remove the bullet
+
+
+
+            local bulletCounter = nil
+
+
+
+            
+
+
+
+            for bulletCounter = #playerBullets, 1, -1 do
+
+
+
+                if ( playerBullets[bulletCounter] == obj1 or playerBullets[bulletCounter] == obj2 ) then
+
+
+
                     playerBullets[bulletCounter]:removeSelf()
+
+
+
                     playerBullets[bulletCounter] = nil
+
+
+
                     table.remove( playerBullets, bulletCounter )
 
+
+
                     break
+
+
+
                 end
+
+
+
             end
 
 
+
+
+
+
+
+
+
+
+
+            -- Increase score
+
+
+
             score = 1
+
+
+
             print ("Eliminations:", score)
+
+
+
+
+
+
+
             ninja2:setSequence( "dead" )
+
+
+
             ninja2:play()
+
+
+
             print("Kill Confirmed")
+
+
 
         end
 
+
+
     end
+
+
 
 end
 
-Ninja2:play()
 
-Runtime:addEventListener ("Collision", Collision)
 
-Runtime:addEventListener ("enterFrame", checkPlayerBulletsOutOfBounds)
 
-shoot:addEventListener ("touch", shootTouch)
+
+
+
+ninja2:play()
+
+
+
+
+
+
+
+Runtime:addEventListener( "collision", onCollision )
+
+
+
+Runtime:addEventListener( "enterFrame", checkPlayerBulletsOutOfBounds )
+
+
+
+shoot:addEventListener( "touch", shootTouch )
